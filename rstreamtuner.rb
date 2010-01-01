@@ -7,12 +7,13 @@ $LOAD_PATH.unshift File.join(__DIR__, 'tk')
 
 require 'stream_api'
 require 'station'
-require 'shoutcast_stream'
 require 'rstreamer_gui'
 
+Dir.glob('./streams/*.rb') do |s|
+  require File.expand_path(s)
+end
+
 gui = RStreamerGui.new("Ruby Stream Tuner")
-gui.add_stream('Shoutcast')
-gui.add_stream('Live365')
 gui.start
 # shoutcast = ShoutcastStream.new
 # shoutcast.search!('love')

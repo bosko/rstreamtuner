@@ -1,4 +1,6 @@
 class ShoutcastStream < StreamAPI
+  stream :Shoutcast
+  
   def initialize
     super('Shoutcast', 'www.shoutcast.com', 500, 1000)
   end
