@@ -2,7 +2,7 @@ class ShoutcastStream < StreamAPI
   stream :Shoutcast
   
   def initialize
-    super('Shoutcast', 'www.shoutcast.com', 500, 1000)
+    super('Shoutcast', 'www.shoutcast.com', 50, 100)
   end
   
   def fetch!
@@ -59,7 +59,7 @@ class ShoutcastStream < StreamAPI
           station.genres << g.text
         end
         station.listeners = elem.css('div.dirListenersDiv').css('span').map {|x| x.text}.join(' ')
-        stations[station.name] = station
+        stations << station
       rescue
       end
     end

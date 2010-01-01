@@ -20,7 +20,7 @@ class StreamAPI
     @url = url
     @chunk_size = chunk_size
     @fetch_limit = fetch_limit
-    @stations = Hash.new
+    @stations = Array.new
   end
 
   def fetch!
