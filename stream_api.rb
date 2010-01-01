@@ -8,7 +8,7 @@ class StreamAPI
   @@streams = Hash.new
 
   def self.stream(name)
-    @@streams[name] = self
+    @@streams[name.to_s] = self
   end
 
   def self.streams
