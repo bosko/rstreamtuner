@@ -1,10 +1,13 @@
 require 'tkextlib/tktable'
 
 class StationsFrame
+  attr_accessor :streams, :stations
+  
   def initialize(root)
-    @paned = Tk::Tile::Paned.new(root, :orient=>:horizontal) do |f|
+    # @lframe = nil
+    @paned = Tk::Tile::Paned.new(root, :orient=>:horizontal) { |pane|
       pack(:side=>:top, :expand=>true, :fill=>:both)
-    end
+    }
     
     create_stream_list
     create_stations_table
@@ -26,10 +29,11 @@ class StationsFrame
   end
   
   def create_stream_list
-    @streams_list = TkListbox.new(@paned).pack(:expand=>true)
-    @streams_list.bind("ButtonRelease-1") {
-      load_stream
+    @streams_list = TkListbox.new(@paned) { |sl|
+      pack(:expand=>true)
+      yscrollbar(TkScrollbar.new(sl).pack(:side=>:right, :fill=>:y))
     }
+    @streams_list.bind("ButtonRelease-1") { load_stream }
   end
 
   def create_stations_table
@@ -37,11 +41,11 @@ class StationsFrame
                                       :width=>6, :height=>6, 
                                       :titlerows=>1, :titlecols=>0, 
                                       :roworigin=>0, :colorigin=>0, 
-                                      :rowstretchmode=>:none, :colstretchmode=>:last,
-                                      :selectmode=>:row, :sparsearray=>false)
-    
-    @stations_table.xscrollbar(TkScrollbar.new)
-    @stations_table.yscrollbar(TkScrollbar.new)
+                                      :rowstretchmode=>:none, :colstretchmode=>:none,
+                                      :selectmode=>:row, :sparsearray=>false) { |tbl|
+      xscrollbar(TkScrollbar.new(tbl).pack(:side=>:bottom, :fill=>:x))
+      yscrollbar(TkScrollbar.new(tbl).pack(:side=>:right, :fill=>:y))
+    }
 
     @ary = add_stations
     @stations_table.variable = @ary
