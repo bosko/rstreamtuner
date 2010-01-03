@@ -4,9 +4,5 @@ class Station
   def initialize
     @genres = Array.new
   end
-
-  def tune_in
-    "http://yp.shoutcast.com/sbin/tunein-station.pls?#{id}"
-  end
 end
 

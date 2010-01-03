@@ -59,6 +59,16 @@ class ShoutcastStream < StreamAPI
           station.genres << g.text
         end
         station.listeners = elem.css('div.dirListenersDiv').css('span').map {|x| x.text}.join(' ')
+        def station.file
+          http = Net::HTTP.new('yp.shoutcast.com')
+          resp, data = http.get("/sbin/tunein-station.pls?id=#{id}")
+          fpath = "/tmp/sc_#{id}.pls"
+          File.open(fpath, 'w') do |f|
+            f.write data
+          end
+          fpath
+        end
+        
         stations << station
       rescue
       end

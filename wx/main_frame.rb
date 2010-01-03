@@ -65,7 +65,7 @@ class MainFrame < Wx::Frame
   end
 
   def on_station_activated(event)
-    cur_item = @stations.stations[event.index]
-    `"audacious2 #{cur_item.tune_in}"`
+    file = @stations.stations[event.index].file
+    system "audacious2 #{file} &"
   end
 end
