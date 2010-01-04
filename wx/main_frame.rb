@@ -1,3 +1,4 @@
+require 'rbconfig'
 require 'stations_list'
 
 include Wx
@@ -66,9 +67,13 @@ class MainFrame < Wx::Frame
   def on_station_activated(event)
     file = @stations.stations[event.index].file
     Wx::begin_busy_cursor
-    # system "audacious2 #{file} &"
-    # Windows player
-    IO.popen "c:/Program Files (x86)/AIMP2/AIMP2.exe #{file}"
+    if Config::CONFIG['host_os'] =~ /mswin|mingw/
+      # Windows player
+      IO.popen "c:/Program Files (x86)/AIMP2/AIMP2.exe #{file}"
+    else
+      IO.popen "audacious2 #{file}"
+    end
+    
     Wx::end_busy_cursor
   end
 end

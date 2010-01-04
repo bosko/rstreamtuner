@@ -73,9 +73,13 @@ class ShoutcastStream < StreamAPI
         def station.file
           http = Net::HTTP.new('yp.shoutcast.com')
           resp, data = http.get("/sbin/tunein-station.pls?id=#{id}")
-          # fpath = "/tmp/sc_#{id}.pls"
-          # Windows version
-          fpath = "c:/tmp/sc_#{id}.pls"
+          if Config::CONFIG['host_os'] =~ /mswin|mingw/
+            # Windows version
+            fpath = "c:/tmp/sc_#{id}.pls"
+          else
+            fpath = "/tmp/sc_#{id}.pls"
+          end
+          
           File.open(fpath, 'w') do |f|
             f.write data
           end
