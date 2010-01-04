@@ -56,6 +56,7 @@ class MainFrame < Wx::Frame
     Wx::begin_busy_cursor
     event.get_client_data.fetch!
     if @stations
+      @stations.columns = event.get_client_data.columns
       @stations.item_count = event.get_client_data.stations.length
       @stations.stations = event.get_client_data.stations
     end

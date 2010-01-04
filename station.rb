@@ -4,5 +4,10 @@ class Station
   def initialize
     @genres = Array.new
   end
+
+  def all_genres
+    @genres.join ', '
+  end
+  
 end
 

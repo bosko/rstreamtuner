@@ -32,4 +32,7 @@ class StreamAPI
 
   def search!(criteria)
   end
+
+  def columns
+  end
 end
