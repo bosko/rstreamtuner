@@ -18,10 +18,6 @@ class MainFrame < Wx::Frame
 
     create_streams_list(splitter)
     create_stations_list(splitter)
-    
-    # p2 = Wx::Window.new(splitter, -1)
-    # p2.set_background_colour(Wx::BLUE)
-    # Wx::StaticText.new(p2, -1, "Panel Two", Wx::Point.new(5,5)).set_background_colour(Wx::BLUE)
 
     splitter.set_minimum_pane_size(20)
     splitter.split_vertically(@streams,@stations,100)
