@@ -11,7 +11,7 @@ require 'station'
 require 'app'
 #require 'rstreamer_gui'
 
-Dir.glob('./streams/*.rb') do |s|
+Dir.glob("#{__DIR__}/streams/*.rb") do |s|
   require File.expand_path(s)
 end
 
