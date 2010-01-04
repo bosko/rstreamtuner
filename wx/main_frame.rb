@@ -57,15 +57,21 @@ class MainFrame < Wx::Frame
 
   def on_stream_selected(event)
     return unless event.get_client_data.is_a? StreamAPI
+    Wx::begin_busy_cursor
     event.get_client_data.fetch!
     if @stations
       @stations.item_count = event.get_client_data.stations.length
       @stations.stations = event.get_client_data.stations
     end
+    Wx::end_busy_cursor
   end
 
   def on_station_activated(event)
     file = @stations.stations[event.index].file
-    system "audacious2 #{file} &"
+    Wx::begin_busy_cursor
+    # system "audacious2 #{file} &"
+    # Windows player
+    IO.popen "c:/Program Files (x86)/AIMP2/AIMP2.exe #{file}"
+    Wx::end_busy_cursor
   end
 end
