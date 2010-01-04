@@ -23,6 +23,10 @@ class StreamAPI
     @stations = Array.new
   end
 
+  def clear_stations
+    @stations.clear
+  end
+  
   def fetch!
   end
 
