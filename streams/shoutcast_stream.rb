@@ -6,6 +6,8 @@ class ShoutcastStream < StreamAPI
   end
   
   def fetch!
+    return if stations.length > 0
+    
     fetched_cnt = 0
     http = Net::HTTP.new(url)
     
