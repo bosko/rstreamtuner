@@ -33,6 +33,11 @@ class StreamAPI
   def search!(criteria)
   end
 
+  def pls_file(index)
+    ''
+  end
+  
   def columns
+    []
   end
 end

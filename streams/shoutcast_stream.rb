@@ -49,42 +49,46 @@ class ShoutcastStream < StreamAPI
   
   def columns
     columns = []
-    columns << {:header=>"Station", :attr=>"name"}
-    columns << {:header=>"Now playing", :attr=>"now_playing"}
-    columns << {:header=>"Genres", :attr=>"all_genres"}
-    columns << {:header=>"Listeners", :attr=>"listeners"}
+    columns << {:header=>"Station", :attr=>:name}
+    columns << {:header=>"Now playing", :attr=>:now_playing}
+    columns << {:header=>"Genres", :attr=>:all_genres}
+    columns << {:header=>"Listeners", :attr=>:listeners}
     columns
   end
-  
+
+  def pls_file(index)
+    id = stations[index][:id]
+    http = Net::HTTP.new('yp.shoutcast.com')
+    resp, data = http.get("/sbin/tunein-station.pls?id=#{id}")
+    if Config::CONFIG['host_os'] =~ /mswin|mingw/
+      # Windows version
+      fpath = "c:/tmp/sc_#{id}.pls"
+    else
+      fpath = "/tmp/sc_#{id}.pls"
+    end
+    
+    File.open(fpath, 'w') do |f|
+      f.write data
+    end
+    fpath
+  end
+
   private
   def process_elements(elements)
     return unless elements.is_a? Nokogiri::XML::NodeSet
     elements.each do |elem|
       begin
-        station = Station.new
-        station.id = elem.attributes['id'].value.match(/\d+/)[0]
-        station.name = elem.css('a.dirStationCntexpand')[0].attributes['title'].value
-        station.url = elem.css('a.dirStationCntexpand')[0].attributes['href'].value
-        station.now_playing = elem.css('div.dirNowPlayingCntexpand')[0].attributes['title'].value
+        station = Hash.new
+        station[:id] = elem.attributes['id'].value.match(/\d+/)[0]
+        station[:name] = elem.css('a.dirStationCntexpand')[0].attributes['title'].value
+        station[:url] = elem.css('a.dirStationCntexpand')[0].attributes['href'].value
+        station[:now_playing] = elem.css('div.dirNowPlayingCntexpand')[0].attributes['title'].value
+        station[:genres] = []
         elem.css('div.dirGenreDiv').css('a').each do |g|
-          station.genres << g.text
+          station[:genres] << g.text
         end
-        station.listeners = elem.css('div.dirListenersDiv').css('span').map {|x| x.text}.join(' ')
-        def station.file
-          http = Net::HTTP.new('yp.shoutcast.com')
-          resp, data = http.get("/sbin/tunein-station.pls?id=#{id}")
-          if Config::CONFIG['host_os'] =~ /mswin|mingw/
-            # Windows version
-            fpath = "c:/tmp/sc_#{id}.pls"
-          else
-            fpath = "/tmp/sc_#{id}.pls"
-          end
-          
-          File.open(fpath, 'w') do |f|
-            f.write data
-          end
-          fpath
-        end
+        station[:all_genres] = station[:genres].join ', '
+        station[:listeners] = elem.css('div.dirListenersDiv').css('span').map {|x| x.text}.join(' ')
         
         stations << station
       rescue

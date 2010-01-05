@@ -19,7 +19,7 @@ class StationsList < Wx::ListCtrl
   def on_get_item_text(item, col)
     text = ''
     if @stations and col < @stations.length
-      text = @stations[item].send(@columns[col][:attr])
+      text = @stations[item][@columns[col][:attr]]
     end
 
     text

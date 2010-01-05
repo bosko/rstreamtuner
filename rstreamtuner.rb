@@ -7,7 +7,6 @@ $LOAD_PATH.unshift File.join(__DIR__, 'tk')
 $LOAD_PATH.unshift File.join(__DIR__, 'wx')
 
 require 'stream_api'
-require 'station'
 require 'app'
 #require 'rstreamer_gui'
 
