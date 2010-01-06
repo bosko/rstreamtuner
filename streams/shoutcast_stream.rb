@@ -6,9 +6,6 @@ class ShoutcastStream < StreamAPI
     if File.exist?(config_file)
       @config = YAML::load_file(config_file)
     else
-      @config = Hash.new
-      @config[:chunk_size] = chunk_size
-      @config[:fetch_limit] = fetch_limit
       @config[:columns] = []
       @config[:columns] << {:header=>"Station", :attr=>:name, :width=>220}
       @config[:columns] << {:header=>"Now playing", :attr=>:now_playing, :width=>175}

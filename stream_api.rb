@@ -3,7 +3,7 @@ require 'uri'
 require 'nokogiri'
 
 class StreamAPI
-  attr_accessor :name, :url, :chunk_size, :fetch_limit, :stations
+  attr_accessor :name, :url, :stations
 
   @@streams = Hash.new
 
@@ -16,15 +16,32 @@ class StreamAPI
   end
   
   def initialize(name, url, chunk_size, fetch_limit)
+    @config = Hash.new
     @name = name || "Invalid stream"
     @url = url
-    @chunk_size = chunk_size
-    @fetch_limit = fetch_limit
+    @config[:chunk_size] = chunk_size
+    @config[:fetch_limit] = fetch_limit
     @stations = Array.new
   end
 
   def clear_stations
     @stations.clear
+  end
+
+  def chunk_size
+    @config[:chunk_size]
+  end
+
+  def chunk_size=(size)
+    @config[:chunk_size] = size
+  end
+  
+  def fetch_limit
+    @config[:fetch_limit]
+  end
+
+  def fetch_limit=(limit)
+    @config[:fetch_limit]
   end
   
   def fetch!
