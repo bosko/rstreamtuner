@@ -21,7 +21,7 @@ module RstConfig
   end
   
   def self.config_dir
-    dir = File.join(ENV['home'], '.rstreamtuner')
+    dir = File.join(ENV['HOME'], '.rstreamtuner')
     unless File.exist?(dir)
       FileUtils.mkdir_p(dir)
     end
