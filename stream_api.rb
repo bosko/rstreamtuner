@@ -67,7 +67,6 @@ class StreamAPI
   
   def column_width(idx, width)
     return unless @config[:columns].is_a? Array
-    puts "Setting column #{idx} width to #{width}"
     @config[:columns][idx][:width] = width
     save_config
   end
