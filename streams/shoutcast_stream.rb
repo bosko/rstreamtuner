@@ -3,14 +3,13 @@ class ShoutcastStream < StreamAPI
   
   def initialize
     super('Shoutcast', 'www.shoutcast.com', 50, 100)
-    if File.exist?(config_file)
-      @config = YAML::load_file(config_file)
-    else
+    if @config[:columns].nil?
       @config[:columns] = []
       @config[:columns] << {:header=>"Station", :attr=>:name, :width=>220}
       @config[:columns] << {:header=>"Now playing", :attr=>:now_playing, :width=>175}
       @config[:columns] << {:header=>"Genres", :attr=>:all_genres, :width=>130}
       @config[:columns] << {:header=>"Listeners", :attr=>:listeners, :width=>130}
+      save_config
     end
   end
   
