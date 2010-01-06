@@ -3,6 +3,21 @@ class ShoutcastStream < StreamAPI
   
   def initialize
     super('Shoutcast', 'www.shoutcast.com', 50, 100)
+    if File.exist?(config_file)
+      @config = YAML::load_file(config_file)
+    else
+      @config = Hash.new
+      @config[:chunk_size] = chunk_size
+      @config[:fetch_limit] = fetch_limit
+      @config[:columns] = []
+      @config[:columns] << {:header=>"Station", :attr=>:name, :width=>220}
+      @config[:columns] << {:header=>"Now playing", :attr=>:now_playing, :width=>175}
+      @config[:columns] << {:header=>"Genres", :attr=>:all_genres, :width=>130}
+      @config[:columns] << {:header=>"Listeners", :attr=>:listeners, :width=>130}
+      File.open(config_file, 'w') do |f|
+        f.write @config.to_yaml
+      end
+    end
   end
   
   def fetch!
@@ -48,12 +63,7 @@ class ShoutcastStream < StreamAPI
   end
   
   def columns
-    columns = []
-    columns << {:header=>"Station", :attr=>:name, :width=>220}
-    columns << {:header=>"Now playing", :attr=>:now_playing, :width=>175}
-    columns << {:header=>"Genres", :attr=>:all_genres, :width=>130}
-    columns << {:header=>"Listeners", :attr=>:listeners, :width=>130}
-    columns
+    @config[:columns]
   end
 
   def pls_file(index)
@@ -74,6 +84,10 @@ class ShoutcastStream < StreamAPI
   end
 
   private
+  def config_file
+    File.join(RstConfig.config_dir, 'shoutcast.yml')
+  end
+  
   def process_elements(elements)
     return unless elements.is_a? Nokogiri::XML::NodeSet
     elements.each do |elem|
