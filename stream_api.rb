@@ -16,12 +16,16 @@ class StreamAPI
   end
   
   def initialize(name, url, chunk_size, fetch_limit)
-    @config = Hash.new
+    load_config
+    if @config.nil?
+      @config = Hash.new
+    end
+    
     @name = name || "Invalid stream"
     @url = url
+    @stations = Array.new
     @config[:chunk_size] = chunk_size
     @config[:fetch_limit] = fetch_limit
-    @stations = Array.new
   end
 
   def clear_stations
@@ -56,5 +60,25 @@ class StreamAPI
   
   def columns
     []
+  end
+
+  def config_file
+  end
+  
+  def column_width(idx, width)
+    return unless @config[:columns].is_a? Array
+    puts "Setting column #{idx} width to #{width}"
+    @config[:columns][idx][:width] = width
+    save_config
+  end
+
+  def load_config
+    @config = YAML::load_file(config_file) if File.exist? config_file
+  end
+
+  def save_config
+    File.open(config_file, 'w') do |f|
+      f.write @config.to_yaml
+    end
   end
 end

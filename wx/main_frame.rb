@@ -45,6 +45,7 @@ class MainFrame < Wx::Frame
   def create_stations_list(splitter)
     @stations = StationsList.new(splitter, STATIONS_LIST)
     @stations.evt_list_item_activated(@stations.id) { |event| on_station_activated(event) }
+    @stations.evt_list_col_end_drag(@stations.id) { |event| on_column_width_changed(event) } 
   end
   
   def close_window(event)
@@ -60,6 +61,7 @@ class MainFrame < Wx::Frame
     if @stations
       @stations.columns = @cur_stream.columns
       @stations.item_count = @cur_stream.stations.length
+      get_status_bar().push_status_text "Number of stations: #{@cur_stream.stations.length}"
       @stations.stations = @cur_stream.stations
     end
     Wx::end_busy_cursor
@@ -77,5 +79,9 @@ class MainFrame < Wx::Frame
     end
     
     Wx::end_busy_cursor
+  end
+
+  def on_column_width_changed(event)
+    @cur_stream.column_width(event.get_column, @stations.column_width(event.get_column))
   end
 end

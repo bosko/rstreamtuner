@@ -11,9 +11,6 @@ class ShoutcastStream < StreamAPI
       @config[:columns] << {:header=>"Now playing", :attr=>:now_playing, :width=>175}
       @config[:columns] << {:header=>"Genres", :attr=>:all_genres, :width=>130}
       @config[:columns] << {:header=>"Listeners", :attr=>:listeners, :width=>130}
-      File.open(config_file, 'w') do |f|
-        f.write @config.to_yaml
-      end
     end
   end
   

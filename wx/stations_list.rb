@@ -35,5 +35,9 @@ class StationsList < Wx::ListCtrl
       return @even_attr
     end
   end
+
+  def column_width(idx)
+    get_column_width(idx)
+  end
 end
 
