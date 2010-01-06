@@ -13,6 +13,7 @@ class StationsList < Wx::ListCtrl
     @columns = columns
     @columns.each_with_index do |col, idx|
       insert_column(idx, col[:header])
+      set_column_width(idx, col[:width]) if col[:width]
     end
   end
   

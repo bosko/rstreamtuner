@@ -49,10 +49,10 @@ class ShoutcastStream < StreamAPI
   
   def columns
     columns = []
-    columns << {:header=>"Station", :attr=>:name}
-    columns << {:header=>"Now playing", :attr=>:now_playing}
-    columns << {:header=>"Genres", :attr=>:all_genres}
-    columns << {:header=>"Listeners", :attr=>:listeners}
+    columns << {:header=>"Station", :attr=>:name, :width=>220}
+    columns << {:header=>"Now playing", :attr=>:now_playing, :width=>175}
+    columns << {:header=>"Genres", :attr=>:all_genres, :width=>130}
+    columns << {:header=>"Listeners", :attr=>:listeners, :width=>130}
     columns
   end
 
