@@ -66,10 +66,6 @@ class ShoutcastStream < StreamAPI
     save_cache
     @stations[:search][criteria]
   end
-  
-  def columns
-    @config[:columns]
-  end
 
   def pls_file(index)
     id = all_stations[index][:id]

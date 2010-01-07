@@ -80,7 +80,7 @@ class StreamAPI
   end
   
   def columns
-    []
+    @config[:columns]
   end
 
   def config_file
