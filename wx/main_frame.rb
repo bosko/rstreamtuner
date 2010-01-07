@@ -129,7 +129,13 @@ class MainFrame < Wx::Frame
   end
 
   def on_station_activated(event)
-    pls_file = @cur_stream.pls_file event.index
+    selected_node = @streams.get_selection
+    active_criteria = nil
+    if @streams.get_item_data(selected_node).is_a? String
+      active_criteria = @streams.get_item_data(selected_node)
+    end
+    
+    pls_file = @cur_stream.pls_file(active_criteria, event.index)
     return unless File.exist? pls_file
     Wx::begin_busy_cursor
     if Config::CONFIG['host_os'] =~ /mswin|mingw/

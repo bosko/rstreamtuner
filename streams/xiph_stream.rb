@@ -54,7 +54,14 @@ class XiphStream < StreamAPI
   def search!(criteria)
   end
 
-  def pls_file(index)
+  def pls_file(search_criteria, index)
+    active_stations = []
+    if search_criteria.nil?
+      active_stations = @stations[:all]
+    else
+      active_stations = @stations[:search][search_criteria]
+    end
+
     fpath = ''
     if Config::CONFIG['host_os'] =~ /mswin|mingw/
       # Windows version
@@ -66,8 +73,8 @@ class XiphStream < StreamAPI
     File.open(fpath, 'w') do |f|
       f.puts "[playlist]"
       f.puts "numberofentries=1"
-      f.puts "File1=#{all_stations[index][:listen_url]}"
-      f.puts "Title1=#{all_stations[index][:server_name]}"
+      f.puts "File1=#{active_stations[index][:listen_url]}"
+      f.puts "Title1=#{active_stations[index][:server_name]}"
       f.puts "Length1=-1"
     end
     return fpath

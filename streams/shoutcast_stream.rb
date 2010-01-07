@@ -38,7 +38,7 @@ class ShoutcastStream < StreamAPI
     end while resp.code.to_i == 200
     save_cache
 
-    all_stations
+    @stations[:all]
   end
 
   def search!(criteria)
@@ -67,10 +67,18 @@ class ShoutcastStream < StreamAPI
     @stations[:search][criteria]
   end
 
-  def pls_file(index)
-    id = all_stations[index][:id]
+  def pls_file(search_criteria, index)
+    active_stations = []
+    if search_criteria.nil?
+      active_stations = @stations[:all]
+    else
+      active_stations = @stations[:search][search_criteria]
+    end
+    
+    id = active_stations[index][:id]
     http = Net::HTTP.new('yp.shoutcast.com')
     resp, data = http.get("/sbin/tunein-station.pls?id=#{id}")
+    fpath = ''
     if Config::CONFIG['host_os'] =~ /mswin|mingw/
       # Windows version
       fpath = "c:/tmp/sc_#{id}.pls"

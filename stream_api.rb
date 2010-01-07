@@ -36,10 +36,6 @@ class StreamAPI
   def clear_stations
     @stations[:all].clear
   end
-
-  def all_stations
-    @stations[:all]
-  end
   
   def chunk_size
     @config[:chunk_size]
@@ -75,7 +71,7 @@ class StreamAPI
     @stations[:search].delete(term)
   end
   
-  def pls_file(index)
+  def pls_file(search_criteria, index)
     ''
   end
   
