@@ -67,8 +67,8 @@ class MainFrame < Wx::Frame
       
   def on_node_selected(event)
     @cur_stream = @streams.get_item_data(event.get_item())
+    Wx::begin_busy_cursor
     if @cur_stream and @cur_stream.is_a? StreamAPI
-      Wx::begin_busy_cursor
       fetched = @cur_stream.fetch!
       if @stations
         @stations.columns = @cur_stream.columns
@@ -76,7 +76,6 @@ class MainFrame < Wx::Frame
         get_status_bar().push_status_text "Number of stations: #{fetched.length}"
         @stations.stations = fetched
       end
-      Wx::end_busy_cursor
     else
       stream_node = @streams.get_item_parent(event.get_item())
       stream = @streams.get_item_data(stream_node)
@@ -84,6 +83,7 @@ class MainFrame < Wx::Frame
         search(stream, event.get_item())
       end
     end
+    Wx::end_busy_cursor
   end
 
   def on_station_activated(event)
