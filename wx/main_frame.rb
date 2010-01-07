@@ -17,7 +17,7 @@ class MainFrame < Wx::Frame
     create_menu
     splitter = Wx::SplitterWindow.new(self,-1)
 
-    create_streams_list(splitter)
+    create_streams_tree(splitter)
     create_stations_list(splitter)
 
     splitter.set_minimum_pane_size(20)
@@ -34,12 +34,16 @@ class MainFrame < Wx::Frame
     evt_menu(CLOSE_APP) {|event| close_window(event)}
   end
 
-  def create_streams_list(splitter)
-    @streams = Wx::ListBox.new(splitter,STREAMS_LIST)
+  def create_streams_tree(splitter)
+    @streams = Wx::TreeCtrl.new(splitter, STREAMS_LIST)
+    root = @streams.add_root("Streams")
     StreamAPI.streams.each do |name,stream|
-      @streams.append(name, stream.new)
+      stream_node = @streams.append_item(root, name)
+      @streams.set_item_data(stream_node, stream.new)
+      @streams.append_item(stream_node, "Search")
     end
-    @streams.evt_listbox(@streams.id) { |event| on_stream_selected(event) }
+    @streams.expand(root)
+    @streams.evt_tree_sel_changed(@streams.id) { |event| on_node_selected(event) }
   end
 
   def create_stations_list(splitter)
@@ -53,18 +57,33 @@ class MainFrame < Wx::Frame
     close(true)
   end
 
-  def on_stream_selected(event)
-    return unless event.get_client_data.is_a? StreamAPI
-    Wx::begin_busy_cursor
-    @cur_stream = event.get_client_data
-    @cur_stream.fetch!
-    if @stations
-      @stations.columns = @cur_stream.columns
-      @stations.item_count = @cur_stream.stations.length
-      get_status_bar().push_status_text "Number of stations: #{@cur_stream.stations.length}"
-      @stations.stations = @cur_stream.stations
+  def search(stream, search_node)
+    dlg = Wx::TextEntryDialog.new(self, "Enter search term",
+                                  "Search #{stream.name} stream")
+    dlg.show_modal
+    stream.search! dlg.get_value if dlg.get_value
+    # Fill search nodes here
+  end
+      
+  def on_node_selected(event)
+    @cur_stream = @streams.get_item_data(event.get_item())
+    if @cur_stream and @cur_stream.is_a? StreamAPI
+      Wx::begin_busy_cursor
+      @cur_stream.fetch!
+      if @stations
+        @stations.columns = @cur_stream.columns
+        @stations.item_count = @cur_stream.stations.length
+        get_status_bar().push_status_text "Number of stations: #{@cur_stream.stations.length}"
+        @stations.stations = @cur_stream.stations
+      end
+      Wx::end_busy_cursor
+    else
+      stream_node = @streams.get_item_parent(event.get_item())
+      stream = @streams.get_item_data(stream_node)
+      if stream and stream.is_a? StreamAPI
+        search(stream, event.get_item())
+      end
     end
-    Wx::end_busy_cursor
   end
 
   def on_station_activated(event)
