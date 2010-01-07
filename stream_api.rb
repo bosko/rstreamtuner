@@ -3,7 +3,7 @@ require 'uri'
 require 'nokogiri'
 
 class StreamAPI
-  attr_accessor :name, :url, :stations
+  attr_accessor :name, :url
 
   @@streams = Hash.new
 
@@ -16,22 +16,31 @@ class StreamAPI
   end
   
   def initialize(name, url, chunk_size, fetch_limit)
-    load_config
-    if @config.nil?
-      @config = Hash.new
-    end
-    
     @name = name || "Invalid stream"
     @url = url
-    @stations = Array.new
-    @config[:chunk_size] = chunk_size
-    @config[:fetch_limit] = fetch_limit
+
+    load_config
+    @config = Hash.new if @config.nil?
+    @config[:chunk_size] = chunk_size if @config[:chunk_size].nil?
+    @config[:fetch_limit] = fetch_limit if @config[:fetch_limit].nil?
+
+    load_cache
+    if @stations.nil?
+      @stations = Hash.new
+      @stations[:all] = Array.new
+      @stations[:search] = Hash.new
+    end
+    
   end
 
   def clear_stations
-    @stations.clear
+    @stations[:all].clear
   end
 
+  def all_stations
+    @stations[:all]
+  end
+  
   def chunk_size
     @config[:chunk_size]
   end
@@ -54,6 +63,18 @@ class StreamAPI
   def search!(criteria)
   end
 
+  def search_results
+    @stations[:search].keys
+  end
+
+  def clear_search(term)
+    @stations[:search][term] = Array.new
+  end
+
+  def remove_search(term)
+    @stations[:search].delete(term)
+  end
+  
   def pls_file(index)
     ''
   end
@@ -63,6 +84,11 @@ class StreamAPI
   end
 
   def config_file
+    File.join(RstConfig.config_dir, "#{name}_config.yml")
+  end
+
+  def cache_file
+    File.join(RstConfig.config_dir, "#{name}_cache.yml")
   end
   
   def column_width(idx, width)
@@ -78,6 +104,16 @@ class StreamAPI
   def save_config
     File.open(config_file, 'w') do |f|
       f.write @config.to_yaml
+    end
+  end
+
+  def load_cache
+    @stations = YAML::load_file(cache_file) if File.exist? cache_file
+  end
+
+  def save_cache
+    File.open(cache_file, 'w') do |f|
+      f.write @stations.to_yaml
     end
   end
 end

@@ -69,12 +69,12 @@ class MainFrame < Wx::Frame
     @cur_stream = @streams.get_item_data(event.get_item())
     if @cur_stream and @cur_stream.is_a? StreamAPI
       Wx::begin_busy_cursor
-      @cur_stream.fetch!
+      fetched = @cur_stream.fetch!
       if @stations
         @stations.columns = @cur_stream.columns
-        @stations.item_count = @cur_stream.stations.length
-        get_status_bar().push_status_text "Number of stations: #{@cur_stream.stations.length}"
-        @stations.stations = @cur_stream.stations
+        @stations.item_count = fetched.length
+        get_status_bar().push_status_text "Number of stations: #{fetched.length}"
+        @stations.stations = fetched
       end
       Wx::end_busy_cursor
     else

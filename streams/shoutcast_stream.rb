@@ -14,35 +14,45 @@ class ShoutcastStream < StreamAPI
   end
   
   def fetch!
-    return if stations.length > 0
+    return @stations[:all] if @stations[:all].length > 0
+
+    fetched_cnt = 0
+    http = Net::HTTP.new(url)
+    begin
+      ref = fetched_cnt * chunk_size + 1
+      if ref < fetch_limit
+        resp, data = http.get("/directory.jsp?startIndex=#{ref}&numresult=#{chunk_size}&ref=','#{ref}")
+        
+        value = Nokogiri::HTML.parse(data)
+        box_element = value.css('div.boxcenterdir')
+
+        grey_elements = box_element.css('div.dirGreyexpand')
+        process_elements(grey_elements) unless grey_elements.nil?
+        
+        blue_elements = box_element.css('div.dirBlueexpand')
+        @stations[:all].concat process_elements(blue_elements) unless blue_elements.nil?
+        fetched_cnt += 1
+      else
+        break
+      end
+    end while resp.code.to_i == 200
+    save_cache
+
+    all_stations
+  end
+
+  def search!(criteria)
+    return @stations[:search][criteria] if @stations[:search][criteria]
+
+    @stations[:search][criteria] = Array.new
     
     fetched_cnt = 0
     http = Net::HTTP.new(url)
-    
+
     begin
       ref = fetched_cnt * chunk_size + 1
       return unless ref < fetch_limit
       
-      resp, data = http.get("/directory.jsp?startIndex=#{ref}&numresult=#{chunk_size}&ref=','#{ref}")
-      
-      value = Nokogiri::HTML.parse(data)
-      box_element = value.css('div.boxcenterdir')
-
-      grey_elements = box_element.css('div.dirGreyexpand')
-      process_elements(grey_elements) unless grey_elements.nil?
-      
-      blue_elements = box_element.css('div.dirBlueexpand')
-      process_elements(blue_elements) unless blue_elements.nil?
-      fetched_cnt += 1
-    end while resp.code.to_i == 200
-  end
-
-  def search!(criteria)
-    fetched_cnt = 0
-    http = Net::HTTP.new(url)
-
-    begin
-      ref = fetched_cnt * chunk_size + 1
       search_url = "/directory/searchKeyword.jsp?startIndex=#{ref}&numresult=#{chunk_size}&mode=listener&searchCrit=simple&s=#{criteria}"
       resp, data = http.get(search_url)
       value = Nokogiri::HTML.parse(data)
@@ -50,9 +60,11 @@ class ShoutcastStream < StreamAPI
       process_elements(greys) unless greys.nil?
       
       blues = value.css('div.dirBlueexpand')
-      process_elements(blues) unless blues.nil?
+      @stations[:search][criteria].concat process_elements(blues) unless blues.nil?
       fetched_cnt += 1
     end while resp.code == 200
+    save_cache
+    @stations[:search][criteria]
   end
   
   def columns
@@ -60,7 +72,7 @@ class ShoutcastStream < StreamAPI
   end
 
   def pls_file(index)
-    id = stations[index][:id]
+    id = all_stations[index][:id]
     http = Net::HTTP.new('yp.shoutcast.com')
     resp, data = http.get("/sbin/tunein-station.pls?id=#{id}")
     if Config::CONFIG['host_os'] =~ /mswin|mingw/
@@ -77,11 +89,8 @@ class ShoutcastStream < StreamAPI
   end
 
   private
-  def config_file
-    File.join(RstConfig.config_dir, 'shoutcast.yml')
-  end
-  
   def process_elements(elements)
+    fetched = Array.new
     return unless elements.is_a? Nokogiri::XML::NodeSet
     elements.each do |elem|
       begin
@@ -97,9 +106,10 @@ class ShoutcastStream < StreamAPI
         station[:all_genres] = station[:genres].join ', '
         station[:listeners] = elem.css('div.dirListenersDiv').css('span').map {|x| x.text}.join(' ')
         
-        stations << station
+        fetched << station
       rescue
       end
     end
+    fetched
   end
 end
