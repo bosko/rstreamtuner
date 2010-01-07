@@ -63,7 +63,7 @@ class StreamAPI
   def search!(criteria)
   end
 
-  def search_results
+  def search_terms
     @stations[:search].keys
   end
 
