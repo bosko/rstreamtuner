@@ -12,7 +12,7 @@ class MainFrame < Wx::Frame
 
   def initialize
     super(nil, -1, "Ruby Stream Tuner",
-          DEFAULT_POSITION, Size.new(700,500), DEFAULT_FRAME_STYLE)
+          DEFAULT_POSITION, Size.new(900,500), DEFAULT_FRAME_STYLE)
     create_status_bar
     create_menu
     @tool_bar = create_tool_bar
@@ -23,7 +23,7 @@ class MainFrame < Wx::Frame
     create_stations_list(splitter)
 
     splitter.set_minimum_pane_size(20)
-    splitter.split_vertically(@streams,@stations,100)
+    splitter.split_vertically(@streams,@stations,170)
   end
 
   def create_menu
