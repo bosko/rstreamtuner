@@ -42,7 +42,12 @@ class MainFrame < Wx::Frame
     refresh_bmp = Wx::Bitmap.new(File.join(icons_path, 'refresh.png'), Wx::BITMAP_TYPE_PNG)
     delete_bmp = Wx::Bitmap.new(File.join(icons_path, 'delete.png'), Wx::BITMAP_TYPE_PNG)
 
+    @tools = Hash.new
     play_tool = tool_bar.add_item(play_bmp, :label => 'Play', :short_help => 'Play selected station')
+    @tools[:play] = play_tool
+    
+    evt_update_ui(play_tool) { |event| on_update_ui(event) }
+    
     tool_bar.evt_tool(play_tool.id) do |event|
       if @stations.get_selections.length > 0
         on_station_activated(@stations.get_selections[0])
@@ -52,7 +57,11 @@ class MainFrame < Wx::Frame
     refresh_tool = tool_bar.add_item(refresh_bmp,
                                      :label => 'Refresh',
                                      :short_help => 'Refresh selected category')
+    @tools[:refresh] = refresh_tool
+    
     delete_tool = tool_bar.add_item(delete_bmp, :label => 'Delete', :short_help => 'Delete search term')
+    @tools[:delete] = delete_tool
+
     tool_bar.realize
   end
   
@@ -177,6 +186,13 @@ class MainFrame < Wx::Frame
     @cur_stream.column_width(event.get_column, @stations.column_width(event.get_column))
   end
 
+  def on_update_ui(event)
+    case event.id
+    when @tools[:play].id
+      event.enable(@stations.get_selections.length > 0)
+    end
+  end
+  
   def set_stations(columns, stations = [])
     @stations.columns = columns
     @stations.item_count = stations.length
