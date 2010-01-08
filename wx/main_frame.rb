@@ -36,15 +36,18 @@ class MainFrame < Wx::Frame
 
   def create_streams_tree(splitter)
     @streams = Wx::TreeCtrl.new(splitter, STREAMS_LIST)
-    root = @streams.add_root("Streams")
+    create_image_list(@streams)
+    root = @streams.add_root("Streams", @icons[:music])
     StreamAPI.streams.each do |name,stream_klass|
-      stream_node = @streams.append_item(root, name)
+      stream_node = @streams.append_item(root, name,
+                                         @icons[:folder_closed],
+                                         @icons[:folder_opened])
       stream = stream_klass.new
       # Store stream in the node's data
       @streams.set_item_data(stream_node, stream)
-      search_node = @streams.append_item(stream_node, "Search")
+      search_node = @streams.append_item(stream_node, "Search", @icons[:search])
       stream.search_terms.each do |search_term|
-        term_node = @streams.append_item(search_node, search_term)
+        term_node = @streams.append_item(search_node, search_term, @icons[:search_folder])
         # Store search term in the node's data
         @streams.set_item_data(term_node, search_term)
       end
@@ -79,7 +82,7 @@ class MainFrame < Wx::Frame
       end
     end
 
-    criteria_node = @streams.append_item(search_node, search_term)
+    criteria_node = @streams.append_item(search_node, search_term, @icons[:search_folder])
     @streams.set_item_data(criteria_node, search_term)
     
     @streams.expand(search_node)
@@ -156,5 +159,22 @@ class MainFrame < Wx::Frame
     @stations.columns = columns
     @stations.item_count = stations.length
     @stations.stations = stations
+  end
+
+  def create_image_list(tree_ctrl)
+    icons_path = File.expand_path(File.join(File.dirname(__FILE__), 'icons'))
+    images = Wx::ImageList.new(16, 16, true)
+    @icons = Hash.new
+    @icons[:music] = images.add(Wx::Bitmap.new(File.join(icons_path, 'music.png'),
+                                                          Wx::BITMAP_TYPE_PNG))
+    @icons[:folder_closed] = images.add(Wx::Bitmap.new(File.join(icons_path, 'folder_closed.png'),
+                                                          Wx::BITMAP_TYPE_PNG))
+    @icons[:folder_opened] = images.add(Wx::Bitmap.new(File.join(icons_path, 'folder_open.png'),
+                                                          Wx::BITMAP_TYPE_PNG))
+    @icons[:search] = images.add(Wx::Bitmap.new(File.join(icons_path, 'search.png'),
+                                                          Wx::BITMAP_TYPE_PNG))
+    @icons[:search_folder] = images.add(Wx::Bitmap.new(File.join(icons_path, 'folder_search.png'),
+                                                       Wx::BITMAP_TYPE_PNG))
+    tree_ctrl.image_list = images
   end
 end
