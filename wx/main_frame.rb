@@ -167,7 +167,7 @@ class MainFrame < Wx::Frame
       # Windows player
       IO.popen "c:/Program Files (x86)/AIMP2/AIMP2.exe #{pls_file}"
     else
-      IO.popen "audacious2 #{pls_file}"
+      IO.popen "audacious2 #{pls_file} 2>&1 1>/dev/null"
     end
     
     Wx::end_busy_cursor
