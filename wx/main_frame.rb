@@ -15,6 +15,8 @@ class MainFrame < Wx::Frame
           DEFAULT_POSITION, Size.new(700,500), DEFAULT_FRAME_STYLE)
     create_status_bar
     create_menu
+    @tool_bar = create_tool_bar
+    add_tools(@tool_bar)
     splitter = Wx::SplitterWindow.new(self,-1)
 
     create_streams_tree(splitter)
@@ -34,20 +36,40 @@ class MainFrame < Wx::Frame
     evt_menu(CLOSE_APP) {|event| close_window(event)}
   end
 
+  def add_tools(tool_bar)
+    icons_path = File.expand_path(File.join(File.dirname(__FILE__), 'icons'))
+    play_bmp = Wx::Bitmap.new(File.join(icons_path, 'play.png'), Wx::BITMAP_TYPE_PNG)
+    refresh_bmp = Wx::Bitmap.new(File.join(icons_path, 'refresh.png'), Wx::BITMAP_TYPE_PNG)
+    delete_bmp = Wx::Bitmap.new(File.join(icons_path, 'delete.png'), Wx::BITMAP_TYPE_PNG)
+
+    play_tool = tool_bar.add_item(play_bmp, :label => 'Play', :short_help => 'Play selected station')
+    tool_bar.evt_tool(play_tool.id) do |event|
+      if @stations.get_selections.length > 0
+        on_station_activated(@stations.get_selections[0])
+      end
+    end
+    
+    refresh_tool = tool_bar.add_item(refresh_bmp,
+                                     :label => 'Refresh',
+                                     :short_help => 'Refresh selected category')
+    delete_tool = tool_bar.add_item(delete_bmp, :label => 'Delete', :short_help => 'Delete search term')
+    tool_bar.realize
+  end
+  
   def create_streams_tree(splitter)
     @streams = Wx::TreeCtrl.new(splitter, STREAMS_LIST)
     create_image_list(@streams)
-    root = @streams.add_root("Streams", @icons[:music])
+    root = @streams.add_root("Streams", @tree_icons[:music])
     StreamAPI.streams.each do |name,stream_klass|
       stream_node = @streams.append_item(root, name,
-                                         @icons[:folder_closed],
-                                         @icons[:folder_opened])
+                                         @tree_icons[:folder_closed],
+                                         @tree_icons[:folder_opened])
       stream = stream_klass.new
       # Store stream in the node's data
       @streams.set_item_data(stream_node, stream)
-      search_node = @streams.append_item(stream_node, "Search", @icons[:search])
+      search_node = @streams.append_item(stream_node, "Search", @tree_icons[:search])
       stream.search_terms.each do |search_term|
-        term_node = @streams.append_item(search_node, search_term, @icons[:search_folder])
+        term_node = @streams.append_item(search_node, search_term, @tree_icons[:search_folder])
         # Store search term in the node's data
         @streams.set_item_data(term_node, search_term)
       end
@@ -58,7 +80,7 @@ class MainFrame < Wx::Frame
 
   def create_stations_list(splitter)
     @stations = StationsList.new(splitter, STATIONS_LIST)
-    @stations.evt_list_item_activated(@stations.id) { |event| on_station_activated(event) }
+    @stations.evt_list_item_activated(@stations.id) { |event| on_station_activated(event.index) }
     @stations.evt_list_col_end_drag(@stations.id) { |event| on_column_width_changed(event) } 
   end
   
@@ -82,7 +104,7 @@ class MainFrame < Wx::Frame
       end
     end
 
-    criteria_node = @streams.append_item(search_node, search_term, @icons[:search_folder])
+    criteria_node = @streams.append_item(search_node, search_term, @tree_icons[:search_folder])
     @streams.set_item_data(criteria_node, search_term)
     
     @streams.expand(search_node)
@@ -131,14 +153,14 @@ class MainFrame < Wx::Frame
     end
   end
 
-  def on_station_activated(event)
+  def on_station_activated(station_index)
     selected_node = @streams.get_selection
     active_criteria = nil
     if @streams.get_item_data(selected_node).is_a? String
       active_criteria = @streams.get_item_data(selected_node)
     end
     
-    pls_file = @cur_stream.pls_file(active_criteria, event.index)
+    pls_file = @cur_stream.pls_file(active_criteria, station_index)
     return unless File.exist? pls_file
     Wx::begin_busy_cursor
     if Config::CONFIG['host_os'] =~ /mswin|mingw/
@@ -164,16 +186,16 @@ class MainFrame < Wx::Frame
   def create_image_list(tree_ctrl)
     icons_path = File.expand_path(File.join(File.dirname(__FILE__), 'icons'))
     images = Wx::ImageList.new(16, 16, true)
-    @icons = Hash.new
-    @icons[:music] = images.add(Wx::Bitmap.new(File.join(icons_path, 'music.png'),
+    @tree_icons = Hash.new
+    @tree_icons[:music] = images.add(Wx::Bitmap.new(File.join(icons_path, 'music.png'),
                                                           Wx::BITMAP_TYPE_PNG))
-    @icons[:folder_closed] = images.add(Wx::Bitmap.new(File.join(icons_path, 'folder_closed.png'),
+    @tree_icons[:folder_closed] = images.add(Wx::Bitmap.new(File.join(icons_path, 'folder_closed.png'),
                                                           Wx::BITMAP_TYPE_PNG))
-    @icons[:folder_opened] = images.add(Wx::Bitmap.new(File.join(icons_path, 'folder_open.png'),
+    @tree_icons[:folder_opened] = images.add(Wx::Bitmap.new(File.join(icons_path, 'folder_open.png'),
                                                           Wx::BITMAP_TYPE_PNG))
-    @icons[:search] = images.add(Wx::Bitmap.new(File.join(icons_path, 'search.png'),
+    @tree_icons[:search] = images.add(Wx::Bitmap.new(File.join(icons_path, 'search.png'),
                                                           Wx::BITMAP_TYPE_PNG))
-    @icons[:search_folder] = images.add(Wx::Bitmap.new(File.join(icons_path, 'folder_search.png'),
+    @tree_icons[:search_folder] = images.add(Wx::Bitmap.new(File.join(icons_path, 'folder_search.png'),
                                                        Wx::BITMAP_TYPE_PNG))
     tree_ctrl.image_list = images
   end
