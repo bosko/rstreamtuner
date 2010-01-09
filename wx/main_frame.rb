@@ -58,10 +58,23 @@ class MainFrame < Wx::Frame
                                      :short_help => 'Refresh selected category')
     @tools[:refresh] = refresh_tool
     evt_update_ui(refresh_tool) { |event| on_update_ui(event) }
+    tool_bar.evt_tool(refresh_tool.id) do |event|
+      selected = @streams.selection
+      data = @streams.get_item_data(selected)
+      if data.is_a? StreamAPI
+        data.clear_stations
+        on_node_selected(selected)
+      elsif data.is_a? String
+        puts "Not implemented yet"
+      end
+    end
     
     delete_tool = tool_bar.add_item(delete_bmp, :label => 'Delete', :short_help => 'Delete search term')
     @tools[:delete] = delete_tool
     evt_update_ui(delete_tool) { |event| on_update_ui(event) }
+    tool_bar.evt_tool(delete_tool.id) do |event|
+      puts "Not implemented yet"
+    end
 
     tool_bar.realize
   end
@@ -85,7 +98,7 @@ class MainFrame < Wx::Frame
       end
     end
     @streams.expand(root)
-    @streams.evt_tree_sel_changed(@streams.id) { |event| on_node_selected(event) }
+    @streams.evt_tree_sel_changed(@streams.id) { |event| on_node_selected(event.get_item()) }
   end
 
   def create_stations_list(splitter)
@@ -116,16 +129,16 @@ class MainFrame < Wx::Frame
 
     criteria_node = @streams.append_item(search_node, search_term, @tree_icons[:search_folder])
     @streams.set_item_data(criteria_node, search_term)
-    
+
     @streams.expand(search_node)
     @streams.select_item(criteria_node, true)
+
     stations = stream.search! search_term
     stream.save_cache
     stations
   end
-      
-  def on_node_selected(event)
-    item = event.get_item()
+
+  def on_node_selected(item)
     if item == @streams.get_root_item
       set_stations(nil)
       return
@@ -141,8 +154,7 @@ class MainFrame < Wx::Frame
       Wx::end_busy_cursor
     elsif !data.nil?
       Wx::begin_busy_cursor
-      term_node = event.get_item()
-      search_node = @streams.get_item_parent(term_node)
+      search_node = @streams.get_item_parent(item)
       stream_node = @streams.get_item_parent(search_node)
 
       @cur_stream = @streams.get_item_data(stream_node)
