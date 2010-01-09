@@ -43,11 +43,10 @@ class MainFrame < Wx::Frame
     delete_bmp = Wx::Bitmap.new(File.join(icons_path, 'delete.png'), Wx::BITMAP_TYPE_PNG)
 
     @tools = Hash.new
+    
     play_tool = tool_bar.add_item(play_bmp, :label => 'Play', :short_help => 'Play selected station')
     @tools[:play] = play_tool
-    
     evt_update_ui(play_tool) { |event| on_update_ui(event) }
-    
     tool_bar.evt_tool(play_tool.id) do |event|
       if @stations.get_selections.length > 0
         on_station_activated(@stations.get_selections[0])
@@ -58,9 +57,11 @@ class MainFrame < Wx::Frame
                                      :label => 'Refresh',
                                      :short_help => 'Refresh selected category')
     @tools[:refresh] = refresh_tool
+    evt_update_ui(refresh_tool) { |event| on_update_ui(event) }
     
     delete_tool = tool_bar.add_item(delete_bmp, :label => 'Delete', :short_help => 'Delete search term')
     @tools[:delete] = delete_tool
+    evt_update_ui(delete_tool) { |event| on_update_ui(event) }
 
     tool_bar.realize
   end
@@ -190,6 +191,20 @@ class MainFrame < Wx::Frame
     case event.id
     when @tools[:play].id
       event.enable(@stations.get_selections.length > 0)
+    when @tools[:refresh].id
+      selected_node = @streams.selection
+      if 0 == selected_node or @streams.get_item_data(selected_node).nil?
+        event.enable(false)
+      else
+        event.enable(true)
+      end
+    when @tools[:delete].id
+      selected_node = @streams.selection
+      if 0 != selected_node and @streams.get_item_data(selected_node).is_a? String
+        event.enable(true)
+      else
+        event.enable(false)
+      end
     end
   end
   
