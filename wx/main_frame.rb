@@ -78,7 +78,16 @@ class MainFrame < Wx::Frame
     @tools[:delete] = delete_tool
     evt_update_ui(delete_tool) { |event| on_update_ui(event) }
     tool_bar.evt_tool(delete_tool.id) do |event|
-      puts "Not implemented yet"
+      selected = @streams.selection
+      data = @streams.get_item_data(selected)
+      if data.is_a? String
+        search_node = @streams.get_item_parent(selected)
+        stream_node = @streams.get_item_parent(search_node)
+        @cur_stream.remove_search data
+        @cur_stream.save_cache
+        @streams.select_item stream_node
+        @streams.delete selected
+      end
     end
 
     tool_bar.realize
