@@ -65,7 +65,12 @@ class MainFrame < Wx::Frame
         data.clear_stations
         on_node_selected(selected)
       elsif data.is_a? String
-        puts "Not implemented yet"
+        Wx::begin_busy_cursor
+        @cur_stream.clear_search(data)
+        stations = @cur_stream.search!(data)
+        @cur_stream.save_cache
+        set_stations(@cur_stream.columns, stations)
+        Wx::end_busy_cursor
       end
     end
     
