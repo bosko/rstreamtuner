@@ -42,7 +42,7 @@ class ShoutcastStream < StreamAPI
   end
 
   def search!(criteria)
-    return @stations[:search][criteria] if @stations[:search][criteria].length > 0
+    return @stations[:search][criteria] if @stations[:search][criteria] and @stations[:search][criteria].length > 0
 
     @stations[:search][criteria] = Array.new
     
