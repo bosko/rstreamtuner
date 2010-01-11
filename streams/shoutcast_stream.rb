@@ -57,7 +57,7 @@ class ShoutcastStream < StreamAPI
       resp, data = http.get(search_url)
       value = Nokogiri::HTML.parse(data)
       greys = value.css('div.dirGreyexpand')
-      process_elements(greys) unless greys.nil?
+      @stations[:search][criteria].concat process_elements(greys) unless greys.nil?
       
       blues = value.css('div.dirBlueexpand')
       @stations[:search][criteria].concat process_elements(blues) unless blues.nil?
