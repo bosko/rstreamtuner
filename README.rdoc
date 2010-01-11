@@ -7,7 +7,7 @@ with new SHOUTcast http://www.shoutcast.com layout.
 At the moment RST supports SHOUTcast and Xiph stream directories (with more to come
 soon), but its plugin system ensures simple and fast development of new plugins.
 
-Although RST is not so fast as streamtuner it is much more flexible.
+Although RST is not so fast as streamtuner but it is much more flexible.
 
 == Dependencies
 
