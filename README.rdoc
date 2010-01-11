@@ -12,12 +12,12 @@ Although RST is not so fast as streamtuner it is much more flexible.
 == Dependencies
 
 RST uses WxRuby as GUI toolkit. It is chosen primarily because of its simple interface
-and multiplatfom support. For data processing it uses Nokogiri.
+and multiplatfom support. For data processing it uses Nokogiri. In order to start RST
+you must install these two gems:
 
-So in order to start RST you must install these two gems:
+   gem install wxruby
 
-gem install wxruby
-gem install nokogiri
+   gem install nokogiri
 
 == More info
 
