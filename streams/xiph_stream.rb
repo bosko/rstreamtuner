@@ -48,7 +48,7 @@ class XiphStream < StreamAPI
     end
     save_cache
 
-    all_stations
+    @stations[:all]
   end
 
   def search!(criteria)
