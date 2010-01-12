@@ -52,6 +52,13 @@ class XiphStream < StreamAPI
   end
 
   def search!(criteria)
+    return @stations[:search][criteria] if @stations[:search][criteria] and @stations[:search][criteria].length > 0
+
+    @stations[:search][criteria] = @stations[:all].find_all do |st|
+      st[:server_name].include? criteria or st[:genre].find { |genre| genre.include? criteria }
+    end
+    save_cache
+    @stations[:search][criteria]
   end
 
   def pls_file(search_criteria, index)
