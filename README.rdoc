@@ -21,7 +21,7 @@ you must install these two gems:
 
 == More info
 
-If you want to know about RST check:
+If you want to know more about RST check:
 
 - Blog:   http://pragdevnotes.com
 - GitHub: http://github.org/bosko/rstreamtuner
