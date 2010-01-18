@@ -1,8 +1,11 @@
 require 'net/http'
 require 'uri'
 require 'nokogiri'
+require 'rst_config'
 
 class StreamAPI
+  include RstConfig
+  
   attr_accessor :name, :url
 
   @@streams = Hash.new
