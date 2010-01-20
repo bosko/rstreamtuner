@@ -1,11 +1,13 @@
 require 'rbconfig'
 require 'stations_list'
+require 'settings_dialog'
 
 include Wx
 
 class MainFrame < Wx::Frame
 
-  CLOSE_APP = 101
+  CLOSE_APP = 103
+  SETTINGS_APP = 104
 
   STREAMS_LIST = 1000
   STATIONS_LIST = 1001
@@ -30,10 +32,13 @@ class MainFrame < Wx::Frame
     menu_bar = Wx::MenuBar.new
 
     file_menu = Wx::Menu.new
-    file_menu.append(CLOSE_APP,"&Close", "Close application")
+    file_menu.append(CLOSE_APP, "&Close", "Close application")
+    file_menu.append(SETTINGS_APP, "&Settings", "Application settings")
+    
     menu_bar.append(file_menu, '&File')
-    set_menu_bar(menu_bar)
     evt_menu(CLOSE_APP) {|event| close_window(event)}
+    evt_menu(SETTINGS_APP) {|event| on_settings}
+    set_menu_bar(menu_bar)
   end
 
   def add_tools(tool_bar)
@@ -124,6 +129,11 @@ class MainFrame < Wx::Frame
   def close_window(event)
     event.skip
     close(true)
+  end
+
+  def on_settings
+    sd = SettingsDialog.new(self)
+    sd.show_modal
   end
 
   def search(stream, search_node, search_term)
@@ -255,5 +265,10 @@ class MainFrame < Wx::Frame
     @tree_icons[:search_folder] = images.add(Wx::Bitmap.new(File.join(icons_path, 'folder_search.png'),
                                                        Wx::BITMAP_TYPE_PNG))
     tree_ctrl.image_list = images
+  end
+
+  def app_settings
+    sett = Array.new
+    sett << {:label => "Player", :value => "audacious2"}
   end
 end
