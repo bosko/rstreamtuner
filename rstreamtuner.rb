@@ -5,7 +5,6 @@ $LOAD_PATH.unshift File.join(__DIR__, 'wx')
 
 require 'rubygems'
 require 'yaml'
-require 'rst_config'
 require 'stream_api'
 require 'wx'
 require 'main_frame'
