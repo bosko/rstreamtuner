@@ -25,7 +25,7 @@ class MainFrame < Wx::Frame
     create_stations_list(splitter)
 
     splitter.set_minimum_pane_size(20)
-    splitter.split_vertically(@streams,@stations,170)
+    splitter.split_vertically(@streams_tree,@stations,170)
   end
 
   def create_menu
@@ -64,8 +64,8 @@ class MainFrame < Wx::Frame
     @tools[:refresh] = refresh_tool
     evt_update_ui(refresh_tool) { |event| on_update_ui(event) }
     tool_bar.evt_tool(refresh_tool.id) do |event|
-      selected = @streams.selection
-      data = @streams.get_item_data(selected)
+      selected = @streams_tree.selection
+      data = @streams_tree.get_item_data(selected)
       if data.is_a? StreamAPI
         data.clear_stations
         on_node_selected(selected)
@@ -83,15 +83,15 @@ class MainFrame < Wx::Frame
     @tools[:delete] = delete_tool
     evt_update_ui(delete_tool) { |event| on_update_ui(event) }
     tool_bar.evt_tool(delete_tool.id) do |event|
-      selected = @streams.selection
-      data = @streams.get_item_data(selected)
+      selected = @streams_tree.selection
+      data = @streams_tree.get_item_data(selected)
       if data.is_a? String
-        search_node = @streams.get_item_parent(selected)
-        stream_node = @streams.get_item_parent(search_node)
+        search_node = @streams_tree.get_item_parent(selected)
+        stream_node = @streams_tree.get_item_parent(search_node)
         @cur_stream.remove_search data
         @cur_stream.save_cache
-        @streams.select_item stream_node
-        @streams.delete selected
+        @streams_tree.select_item stream_node
+        @streams_tree.delete selected
       end
     end
 
@@ -99,25 +99,25 @@ class MainFrame < Wx::Frame
   end
   
   def create_streams_tree(splitter)
-    @streams = Wx::TreeCtrl.new(splitter, STREAMS_LIST)
-    create_image_list(@streams)
-    root = @streams.add_root("Streams", @tree_icons[:music])
+    @streams_tree = Wx::TreeCtrl.new(splitter, STREAMS_LIST)
+    create_image_list(@streams_tree)
+    root = @streams_tree.add_root("Streams", @tree_icons[:music])
     StreamAPI.streams.each do |name,stream_klass|
-      stream_node = @streams.append_item(root, name,
+      stream_node = @streams_tree.append_item(root, name,
                                          @tree_icons[:folder_closed],
                                          @tree_icons[:folder_opened])
       stream = stream_klass.new
       # Store stream in the node's data
-      @streams.set_item_data(stream_node, stream)
-      search_node = @streams.append_item(stream_node, "Search", @tree_icons[:search])
+      @streams_tree.set_item_data(stream_node, stream)
+      search_node = @streams_tree.append_item(stream_node, "Search", @tree_icons[:search])
       stream.search_terms.each do |search_term|
-        term_node = @streams.append_item(search_node, search_term, @tree_icons[:search_folder])
+        term_node = @streams_tree.append_item(search_node, search_term, @tree_icons[:search_folder])
         # Store search term in the node's data
-        @streams.set_item_data(term_node, search_term)
+        @streams_tree.set_item_data(term_node, search_term)
       end
     end
-    @streams.expand(root)
-    @streams.evt_tree_sel_changed(@streams.id) { |event| on_node_selected(event.get_item()) }
+    @streams_tree.expand(root)
+    @streams_tree.evt_tree_sel_changed(@streams_tree.id) { |event| on_node_selected(event.get_item()) }
   end
 
   def create_stations_list(splitter)
@@ -142,20 +142,20 @@ class MainFrame < Wx::Frame
       return stations
     end
 
-    @streams.get_children(search_node).each do |criteria_node|
-      if @streams.get_item_data(criteria_node) == search_term
+    @streams_tree.get_children(search_node).each do |criteria_node|
+      if @streams_tree.get_item_data(criteria_node) == search_term
         # If we already have node with this search term select it and
         # return
-        @streams.select_item(criteria_node, true)
+        @streams_tree.select_item(criteria_node, true)
         return stations
       end
     end
 
-    criteria_node = @streams.append_item(search_node, search_term, @tree_icons[:search_folder])
-    @streams.set_item_data(criteria_node, search_term)
+    criteria_node = @streams_tree.append_item(search_node, search_term, @tree_icons[:search_folder])
+    @streams_tree.set_item_data(criteria_node, search_term)
 
-    @streams.expand(search_node)
-    @streams.select_item(criteria_node, true)
+    @streams_tree.expand(search_node)
+    @streams_tree.select_item(criteria_node, true)
 
     stations = stream.search! search_term
     stream.save_cache
@@ -163,12 +163,12 @@ class MainFrame < Wx::Frame
   end
 
   def on_node_selected(item)
-    if item == @streams.get_root_item
+    if item == @streams_tree.get_root_item
       set_stations(nil)
       return
     end
 
-    data = @streams.get_item_data(item)
+    data = @streams_tree.get_item_data(item)
     if data and data.is_a? StreamAPI
       Wx::begin_busy_cursor
       @cur_stream = data
@@ -178,21 +178,21 @@ class MainFrame < Wx::Frame
       Wx::end_busy_cursor
     elsif !data.nil?
       Wx::begin_busy_cursor
-      search_node = @streams.get_item_parent(item)
-      stream_node = @streams.get_item_parent(search_node)
+      search_node = @streams_tree.get_item_parent(item)
+      stream_node = @streams_tree.get_item_parent(search_node)
 
-      @cur_stream = @streams.get_item_data(stream_node)
+      @cur_stream = @streams_tree.get_item_data(stream_node)
       set_stations(@cur_stream.columns, @cur_stream.search!(data))
       Wx::end_busy_cursor
     else
-      stream_node = @streams.get_item_parent(item)
-      stream = @streams.get_item_data(stream_node)
+      stream_node = @streams_tree.get_item_parent(item)
+      stream = @streams_tree.get_item_data(stream_node)
       dlg = Wx::TextEntryDialog.new(self, "Enter search term",
                                     "Search #{stream.name} stream")
       dlg.show_modal
 
       Wx::begin_busy_cursor
-      @cur_stream = @streams.get_item_data(stream_node)
+      @cur_stream = @streams_tree.get_item_data(stream_node)
       stations = search(stream, item, dlg.get_value)
       set_stations(@cur_stream.columns, stations)
       Wx::end_busy_cursor
@@ -200,10 +200,10 @@ class MainFrame < Wx::Frame
   end
 
   def on_station_activated(station_index)
-    selected_node = @streams.get_selection
+    selected_node = @streams_tree.get_selection
     active_criteria = nil
-    if @streams.get_item_data(selected_node).is_a? String
-      active_criteria = @streams.get_item_data(selected_node)
+    if @streams_tree.get_item_data(selected_node).is_a? String
+      active_criteria = @streams_tree.get_item_data(selected_node)
     end
     
     pls_file = @cur_stream.pls_file(active_criteria, station_index)
@@ -228,15 +228,15 @@ class MainFrame < Wx::Frame
     when @tools[:play].id
       event.enable(@stations.get_selections.length > 0)
     when @tools[:refresh].id
-      selected_node = @streams.selection
-      if 0 == selected_node or @streams.get_item_data(selected_node).nil?
+      selected_node = @streams_tree.selection
+      if 0 == selected_node or @streams_tree.get_item_data(selected_node).nil?
         event.enable(false)
       else
         event.enable(true)
       end
     when @tools[:delete].id
-      selected_node = @streams.selection
-      if 0 != selected_node and @streams.get_item_data(selected_node).is_a? String
+      selected_node = @streams_tree.selection
+      if 0 != selected_node and @streams_tree.get_item_data(selected_node).is_a? String
         event.enable(true)
       else
         event.enable(false)
