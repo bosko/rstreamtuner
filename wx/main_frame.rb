@@ -24,6 +24,8 @@ class MainFrame < Wx::Frame
     create_streams_tree(splitter)
     create_stations_list(splitter)
 
+    icons_path = File.expand_path(File.join(File.dirname(__FILE__), 'icons'))
+    self.icon = Wx::Icon.new(File.join(icons_path, 'music.png'), Wx::BITMAP_TYPE_PNG)
     splitter.set_minimum_pane_size(20)
     splitter.split_vertically(@streams_tree,@stations,170)
   end
