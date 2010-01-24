@@ -71,12 +71,6 @@ class StreamAPI
     save_config
   end
 
-  def save_config
-    File.open(config_file, 'w') do |f|
-      f.write @config.to_yaml
-    end
-  end
-
   def load_cache
     @stations = YAML::load_file(cache_file) if File.exist? cache_file
   end
