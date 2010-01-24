@@ -2,18 +2,18 @@ class XiphStream < StreamAPI
   stream :Xiph
   
   def initialize
-    super('Xiph', 'dir.xiph.org', 0, 0)
-    if @config[:columns].nil?
-      @config[:columns] = []
-      @config[:columns] << {:header=>"Name", :attr=>:server_name, :width=>220}
-      @config[:columns] << {:header=>"Type", :attr=>:server_type, :width=>130}
-      @config[:columns] << {:header=>"Bitrate", :attr=>:bitrate, :width=>130}
-      @config[:columns] << {:header=>"Channels", :attr=>:channels, :width=>130}
-      @config[:columns] << {:header=>"Sample rate", :attr=>:samplerate, :width=>130}
-      @config[:columns] << {:header=>"Genres", :attr=>:all_genres, :width=>130}
-      @config[:columns] << {:header=>"Current song", :attr=>:current_song, :width=>175}
-      save_config
+    super('Xiph', 'dir.xiph.org')
+    if config[:columns].nil?
+      config[:columns] = []
+      config[:columns] << {:header=>"Name", :attr=>:server_name, :width=>220}
+      config[:columns] << {:header=>"Type", :attr=>:server_type, :width=>130}
+      config[:columns] << {:header=>"Bitrate", :attr=>:bitrate, :width=>130}
+      config[:columns] << {:header=>"Channels", :attr=>:channels, :width=>130}
+      config[:columns] << {:header=>"Sample rate", :attr=>:samplerate, :width=>130}
+      config[:columns] << {:header=>"Genres", :attr=>:all_genres, :width=>130}
+      config[:columns] << {:header=>"Current song", :attr=>:current_song, :width=>175}
     end
+    save_config
   end
   
   def fetch!

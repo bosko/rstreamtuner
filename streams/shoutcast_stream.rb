@@ -1,16 +1,30 @@
 class ShoutcastStream < StreamAPI
   stream :Shoutcast
+  editable :chunk_size, :fetch_limit
   
   def initialize
-    super('Shoutcast', 'www.shoutcast.com', 50, 100)
-    if @config[:columns].nil?
-      @config[:columns] = []
-      @config[:columns] << {:header=>"Station", :attr=>:name, :width=>220}
-      @config[:columns] << {:header=>"Now playing", :attr=>:now_playing, :width=>175}
-      @config[:columns] << {:header=>"Genres", :attr=>:all_genres, :width=>130}
-      @config[:columns] << {:header=>"Listeners", :attr=>:listeners, :width=>130}
-      save_config
+    super('Shoutcast', 'www.shoutcast.com')
+
+    if config[:columns].nil?
+      config[:columns] = []
+      config[:columns] << {:header=>"Station", :attr=>:name, :width=>220}
+      config[:columns] << {:header=>"Now playing", :attr=>:now_playing, :width=>175}
+      config[:columns] << {:header=>"Genres", :attr=>:all_genres, :width=>130}
+      config[:columns] << {:header=>"Listeners", :attr=>:listeners, :width=>130}
     end
+
+    if config[:chunk_size].nil?
+      config[:chunk_size] = Hash.new
+      config[:chunk_size][:label] = "Chunk size"
+      config[:chunk_size][:value] = 50
+    end
+
+    if config[:fetch_limit].nil?
+      config[:fetch_limit] = Hash.new
+      config[:fetch_limit][:label] = "Fetch limit"
+      config[:fetch_limit][:value] = 100
+    end
+    save_config
   end
   
   def fetch!
@@ -65,6 +79,22 @@ class ShoutcastStream < StreamAPI
     end while resp.code == 200
     save_cache
     @stations[:search][criteria]
+  end
+  
+  def chunk_size
+    config[:chunk_size][:value]
+  end
+
+  def chunk_size=(size)
+    config[:chunk_size][:value] = size
+  end
+  
+  def fetch_limit
+    config[:fetch_limit][:value]
+  end
+
+  def fetch_limit=(limit)
+    config[:fetch_limit][:value] = limit
   end
 
   def pls_file(search_criteria, index)

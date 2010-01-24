@@ -1,9 +1,9 @@
 class OptionsPanel < Wx::Panel
-  def initialize(parent,options = [])
+  def initialize(parent,options = {})
     super(parent, -1, Wx::DEFAULT_POSITION, Wx::DEFAULT_SIZE)
     @options = options
     vbox = Wx::VBoxSizer.new
-    @options.each do |opt|
+    @options.each do |k, opt|
       vbox1 = Wx::VBoxSizer.new
       vbox1.add(Wx::StaticText.new(self, -1, opt[:label].to_s), 0)
  
@@ -11,9 +11,12 @@ class OptionsPanel < Wx::Panel
       flags = 0
       if opt[:value].is_a? Fixnum
         ctrl = Wx::SpinCtrl.new(self, -1, opt[:value].to_s)
+        ctrl.set_range(0, 10000)
+        evt_spinctrl(ctrl) { |event| opt[:value] = ctrl.value }
         flags = Wx::BOTTOM
       else
         ctrl = Wx::TextCtrl.new(self, -1, opt[:value])
+        evt_text(ctrl) { |event| opt[:value] = ctrl.value.to_s }  
         flags = Wx::EXPAND | Wx::BOTTOM
       end
       vbox1.add(ctrl, 0, flags, 3)

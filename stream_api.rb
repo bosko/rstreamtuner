@@ -18,14 +18,10 @@ class StreamAPI
     @@streams
   end
   
-  def initialize(name, url, chunk_size, fetch_limit)
+  def initialize(name, url)
     @name = name || "Invalid stream"
     @url = url
-
-    load_config
-    @config = Hash.new if @config.nil?
-    @config[:chunk_size] = chunk_size if @config[:chunk_size].nil?
-    @config[:fetch_limit] = fetch_limit if @config[:fetch_limit].nil?
+    cfg_file_name("#{@name}_config.yml")
 
     load_cache
     if @stations.nil?
@@ -33,27 +29,10 @@ class StreamAPI
       @stations[:all] = Array.new
       @stations[:search] = Hash.new
     end
-    
   end
 
   def clear_stations
     @stations[:all].clear
-  end
-  
-  def chunk_size
-    @config[:chunk_size]
-  end
-
-  def chunk_size=(size)
-    @config[:chunk_size] = size
-  end
-  
-  def fetch_limit
-    @config[:fetch_limit]
-  end
-
-  def fetch_limit=(limit)
-    @config[:fetch_limit]
   end
   
   def fetch!
@@ -79,25 +58,17 @@ class StreamAPI
   end
   
   def columns
-    @config[:columns]
-  end
-
-  def config_file
-    File.join(RstConfig.config_dir, "#{name}_config.yml")
+    config[:columns]
   end
 
   def cache_file
-    File.join(RstConfig.config_dir, "#{name}_cache.yml")
+    File.join(config_dir, "#{name}_cache.yml")
   end
   
   def column_width(idx, width)
-    return unless @config[:columns].is_a? Array
-    @config[:columns][idx][:width] = width
+    return unless config[:columns].is_a? Array
+    config[:columns][idx][:width] = width
     save_config
-  end
-
-  def load_config
-    @config = YAML::load_file(config_file) if File.exist? config_file
   end
 
   def save_config

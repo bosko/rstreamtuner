@@ -99,6 +99,7 @@ class MainFrame < Wx::Frame
   end
   
   def create_streams_tree(splitter)
+    @streams = []
     @streams_tree = Wx::TreeCtrl.new(splitter, STREAMS_LIST)
     create_image_list(@streams_tree)
     root = @streams_tree.add_root("Streams", @tree_icons[:music])
@@ -107,6 +108,8 @@ class MainFrame < Wx::Frame
                                          @tree_icons[:folder_closed],
                                          @tree_icons[:folder_opened])
       stream = stream_klass.new
+      @streams << stream
+      
       # Store stream in the node's data
       @streams_tree.set_item_data(stream_node, stream)
       search_node = @streams_tree.append_item(stream_node, "Search", @tree_icons[:search])
@@ -132,7 +135,16 @@ class MainFrame < Wx::Frame
   end
 
   def on_settings
-    sd = SettingsDialog.new(self)
+    sett = Hash.new
+    sett[:app] = {:label => "Player", :value => "audacious2"}
+
+    streams_sett = Hash.new
+    @streams.each do |stream|
+      streams_sett[stream.name] = stream.editable_settings unless stream.editable_settings.length == 0
+    end
+    sett[:streams] = streams_sett
+
+    sd = SettingsDialog.new(self, sett)
     sd.show_modal
   end
 
