@@ -10,8 +10,8 @@ class OptionsPanel < Wx::Panel
       ctrl = nil
       flags = 0
       if opt[:value].is_a? Fixnum
-        ctrl = Wx::SpinCtrl.new(self, -1, opt[:value].to_s)
-        ctrl.set_range(0, 10000)
+        ctrl = Wx::SpinCtrl.new(self, -1, :value => opt[:value].to_s,
+                                :min => 0, :max => 10000)
         evt_spinctrl(ctrl) { |event| opt[:value] = ctrl.value }
         flags = Wx::BOTTOM
       else
