@@ -41,7 +41,7 @@ class ShoutcastStream < StreamAPI
         box_element = value.css('div.boxcenterdir')
 
         grey_elements = box_element.css('div.dirGreyexpand')
-        process_elements(grey_elements) unless grey_elements.nil?
+        @stations[:all].concat process_elements(grey_elements) unless grey_elements.nil?
         
         blue_elements = box_element.css('div.dirBlueexpand')
         @stations[:all].concat process_elements(blue_elements) unless blue_elements.nil?
