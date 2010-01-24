@@ -146,6 +146,9 @@ class MainFrame < Wx::Frame
 
     sd = SettingsDialog.new(self, sett)
     sd.show_modal
+    @streams.each do |stream|
+      stream.save_config
+    end
   end
 
   def search(stream, search_node, search_term)
