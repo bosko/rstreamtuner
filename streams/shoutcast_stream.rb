@@ -13,17 +13,9 @@ class ShoutcastStream < StreamAPI
       config[:columns] << {:header=>"Listeners", :attr=>:listeners, :width=>130}
     end
 
-    if config[:chunk_size].nil?
-      config[:chunk_size] = Hash.new
-      config[:chunk_size][:label] = "Chunk size"
-      config[:chunk_size][:value] = 50
-    end
+    config[:chunk_size] = {:label => "Chunk size", :value => 50} if config[:chunk_size].nil?
+    config[:fetch_limit] = {:label => "Fetch limit", :value => 100} if config[:fetch_limit].nil?
 
-    if config[:fetch_limit].nil?
-      config[:fetch_limit] = Hash.new
-      config[:fetch_limit][:label] = "Fetch limit"
-      config[:fetch_limit][:value] = 100
-    end
     save_config
   end
   
