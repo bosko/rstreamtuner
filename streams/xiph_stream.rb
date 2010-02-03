@@ -1,3 +1,5 @@
+require "tmpdir"
+
 class XiphStream < StreamAPI
   stream :Xiph
   
@@ -69,14 +71,7 @@ class XiphStream < StreamAPI
       active_stations = @stations[:search][search_criteria]
     end
 
-    fpath = ''
-    if Config::CONFIG['host_os'] =~ /mswin|mingw/
-      # Windows version
-      fpath = "c:/tmp/xiph.pls"
-    else
-      fpath = "/tmp/xiph.pls"
-    end
-
+    fpath = File.join(Dir.tmpdir, "xiph.pls")
     File.open(fpath, 'w') do |f|
       f.puts "[playlist]"
       f.puts "numberofentries=1"
@@ -86,5 +81,4 @@ class XiphStream < StreamAPI
     end
     return fpath
   end
-  
 end

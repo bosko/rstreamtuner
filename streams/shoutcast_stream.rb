@@ -1,3 +1,5 @@
+require "tmpdir"
+
 class ShoutcastStream < StreamAPI
   stream :Shoutcast
   editable :chunk_size, :fetch_limit
@@ -100,14 +102,8 @@ class ShoutcastStream < StreamAPI
     id = active_stations[index][:id]
     http = Net::HTTP.new('yp.shoutcast.com')
     resp, data = http.get("/sbin/tunein-station.pls?id=#{id}")
-    fpath = ''
-    if Config::CONFIG['host_os'] =~ /mswin|mingw/
-      # Windows version
-      fpath = "c:/tmp/sc_#{id}.pls"
-    else
-      fpath = "/tmp/sc_#{id}.pls"
-    end
-    
+
+    fpath = File.join(Dir.tmpdir, "sc_#{id}.pls")
     File.open(fpath, 'w') do |f|
       f.write data
     end
