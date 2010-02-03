@@ -17,8 +17,8 @@ module RstConfig
   end
   
   def load_config
-    @config = Hash.new
     @config = YAML::load_file(config_file) if File.exist? config_file
+    @config ||= {}
   end
   
   def save_config
@@ -38,6 +38,7 @@ module RstConfig
   end
 
   def editable_settings
+    @@editable ||= []
     es = Hash.new
     @config.each do |k, v|
       if @@editable.include? k
