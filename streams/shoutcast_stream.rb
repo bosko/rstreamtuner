@@ -12,7 +12,9 @@ class ShoutcastStream < StreamAPI
       config[:columns] << {:header=>"Station", :attr=>:name, :width=>220}
       config[:columns] << {:header=>"Now playing", :attr=>:now_playing, :width=>175}
       config[:columns] << {:header=>"Genres", :attr=>:all_genres, :width=>130}
-      config[:columns] << {:header=>"Listeners", :attr=>:listeners, :width=>130}
+      config[:columns] << {:header=>"Listeners", :attr=>:listeners, :width=>43}
+      config[:columns] << {:header=>"Bitrate", :attr=>:bitrate, :width=>43}
+      config[:columns] << {:header=>"Format", :attr=>:format, :width=>43}
     end
 
     config[:chunk_size] = {:label => "Chunk size", :value => 50} if config[:chunk_size].nil?
@@ -126,7 +128,16 @@ class ShoutcastStream < StreamAPI
           station[:genres] << g.text
         end
         station[:all_genres] = station[:genres].join ', '
-        station[:listeners] = elem.css('div.dirListenersDiv').css('span').map {|x| x.text}.join(' ')
+        data = elem.css('div.dirListenersDiv').css('span')
+        if 5 == data.length
+          station[:listeners] = "#{data[0].text}"
+          station[:bitrate] = "#{data[2].text} #{data[3].text.chop}"
+          station[:format] = "#{data[4].text}"
+        else
+          station[:listeners] = ''
+          station[:bitrate] = ''
+          station[:format] = ''
+        end
         
         fetched << station
       rescue
