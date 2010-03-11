@@ -27,7 +27,7 @@ class SettingsDialog < Wx::Dialog
     @options.set_item_data(root, empty_panel)
     
     gen_node = @options.append_item(root, "General")
-    gen_panel = OptionsPanel.new(splitter, {:app, @settings[:app]})
+    gen_panel = OptionsPanel.new(splitter, {:app => @settings[:app]})
     gen_panel.hide
     @options.set_item_data(gen_node, gen_panel)
     
