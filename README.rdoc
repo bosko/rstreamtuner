@@ -19,7 +19,7 @@ you must install these two gems:
 
    gem install nokogiri
 
-Screenshots: http://pragdevnotes.com/2010/01/26/rstreamtuner-in-action
+Screenshots: http://pragdevnotes.com/2010/01/27/rstreamtuner-in-action
 
 == More info
 
