@@ -1,4 +1,4 @@
-#! /usr/bin/ruby
+#! /usr/bin/env ruby
 
 __DIR__ = File.expand_path(File.dirname(__FILE__))
 $LOAD_PATH.unshift __DIR__
