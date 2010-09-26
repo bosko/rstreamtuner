@@ -48,7 +48,7 @@ class SettingsDialog < Wx::Dialog
   end
  
   def on_node_selected(event)
-    win2 = @splitter.get_window_2
+    win2 = @splitter.get_window2
     new_win = @options.get_item_data(event.get_item())
     unless new_win.nil? or win2 == new_win
       @splitter.replace_window(win2, new_win)
