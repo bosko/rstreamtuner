@@ -191,7 +191,6 @@ class MainFrame < Wx::Frame
       @cur_stream = data
       fetched = @cur_stream.fetch!
       set_stations(@cur_stream.columns, fetched)
-      get_status_bar().push_status_text "Number of stations: #{fetched.length}"
       Wx::end_busy_cursor
     elsif !data.nil?
       Wx::begin_busy_cursor
@@ -262,9 +261,12 @@ class MainFrame < Wx::Frame
   end
   
   def set_stations(columns, stations = [])
+    return unless stations.is_a? Array
+    
     @stations.columns = columns
     @stations.item_count = stations.length
     @stations.stations = stations
+    get_status_bar().push_status_text "Number of stations: #{stations.length}"
   end
 
   def create_image_list(tree_ctrl)
